@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 axios.defaults.baseURL = 'https://pixabay.com';
+const KEY = '28021397-efd8f00a24064632ececcc08e';
 
 export const getNewItems = (searchInput, page) => {
   return axios
@@ -8,7 +9,7 @@ export const getNewItems = (searchInput, page) => {
       params: {
         q: searchInput,
         page: page,
-        key: '28021397-efd8f00a24064632ececcc08e',
+        key: KEY,
         image_type: 'photo',
         orientation: 'horizontal',
         per_page: 12,

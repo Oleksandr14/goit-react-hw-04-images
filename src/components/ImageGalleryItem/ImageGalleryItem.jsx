@@ -1,34 +1,28 @@
 import PropTypes from 'prop-types';
-
-import { Component } from 'react';
-import { Img, Item } from './ImageGalleryItem.styled';
+import { useState } from 'react';
 
 import { Modal } from 'components/Modal/Modal';
 
-export class ImageGalleryItem extends Component {
-  state = {
-    showModal: false,
-    count: 1,
+import { Img, Item } from './ImageGalleryItem.styled';
+
+export const ImageGalleryItem = ({ webformatURL, largeImageURL }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const toggleModal = () => {
+    setShowModal(p => !p);
   };
 
-  toggleModal = () => {
-    this.setState(prev => ({ showModal: !prev.showModal, count: 2 }));
-  };
-
-  render() {
-    const { webformatURL, largeImageURL } = this.props;
-    return (
-      <>
-        <Item onClick={this.toggleModal}>
-          <Img src={webformatURL} alt="pictures" />
-        </Item>
-        {this.state.showModal && (
-          <Modal onClose={this.toggleModal} largeImageURL={largeImageURL} />
-        )}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <Item onClick={toggleModal}>
+        <Img src={webformatURL} alt="pictures" />
+      </Item>
+      {showModal && (
+        <Modal onClose={toggleModal} largeImageURL={largeImageURL} />
+      )}
+    </>
+  );
+};
 
 ImageGalleryItem.propTypes = {
   webformatURL: PropTypes.string.isRequired,

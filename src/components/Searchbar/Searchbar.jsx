@@ -1,24 +1,16 @@
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 
-import { Component } from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { Header, Input, ButtonForm } from './Searchbar.styled';
 
 import { toast } from 'react-toastify';
 
-export class Searchbar extends Component {
-  state = {
-    input: '',
-  };
+export const Searchbar = ({ onSubmit }) => {
+  const [input, setInput] = useState('');
 
-  handleInput = e => {
-    this.setState({ input: e.target.value });
-  };
-
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-
-    const { input } = this.state;
 
     if (input.trim() === '') {
       return toast.error('Enter a word', {
@@ -26,32 +18,29 @@ export class Searchbar extends Component {
       });
     }
 
-    this.props.onSubmit(input);
-    this.setState({ input: '' });
+    onSubmit(input);
+    setInput('');
   };
 
-  render() {
-    const { input } = this.state;
-    return (
-      <Header>
-        <form onSubmit={this.handleSubmit}>
-          <ButtonForm type="submit">
-            <AiOutlineSearch size={16} color="#07c" />
-          </ButtonForm>
+  return (
+    <Header>
+      <form onSubmit={handleSubmit}>
+        <ButtonForm type="submit">
+          <AiOutlineSearch size={16} color="#07c" />
+        </ButtonForm>
 
-          <Input
-            type="text"
-            value={input}
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            onChange={this.handleInput}
-          />
-        </form>
-      </Header>
-    );
-  }
-}
+        <Input
+          type="text"
+          value={input}
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          onChange={e => setInput(e.target.value)}
+        />
+      </form>
+    </Header>
+  );
+};
 
 Searchbar.propTypes = {
   onSubmit: PropTypes.func.isRequired,

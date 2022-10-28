@@ -1,6 +1,8 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
+
 import { GlobalStyle } from '../styles/GlobalStyle';
 import { Box } from './Box';
+
 import { Loader } from './Loader/Loader';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
@@ -13,61 +15,54 @@ import { getNewItems, normalizeApi } from '../utils/Api';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export class App extends Component {
-  state = {
-    searchInput: '',
-    items: [],
-    page: 1,
-    totalHits: null,
-    isLoader: false,
-    total: null,
+export const App = () => {
+  const [searchInput, setSearchInput] = useState('');
+  const [items, setItems] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalHits, setTotalHits] = useState(null);
+  const [isLoader, setIsLoader] = useState(false);
+  const [total, setTotal] = useState(null);
+
+  const handleSubmit = searchInput => {
+    setSearchInput(searchInput);
+    setItems([]);
+    setPage(1);
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    const { searchInput, page } = this.state;
-
-    if (prevState.searchInput !== searchInput || prevState.page !== page) {
-      this.setState({ isLoader: true, total: null });
-
-      getNewItems(searchInput, page).then(({ hits, totalHits, total }) => {
-        this.setState(prev => ({
-          items: [...prev.items, ...normalizeApi(hits)],
-          totalHits,
-          isLoader: false,
-          total,
-        }));
-      });
-    }
-  }
-
-  handleSubmit = searchInput => {
-    this.setState({ searchInput, items: [], page: 1 });
+  const updatePage = () => {
+    setPage(p => p + 1);
   };
 
-  updatePage = () => {
-    this.setState(prev => ({ page: prev.page + 1 }));
-  };
+  const loadMoreBtnTrue = items.length > 0 && items.length < totalHits;
 
-  render() {
-    const { items, totalHits, isLoader, total } = this.state;
-    const loadMoreBtnTrue = items.length > 0 && items.length < totalHits;
-    return (
-      <Box pb={4}>
-        <Searchbar onSubmit={this.handleSubmit} />
+  useEffect(() => {
+    if (!searchInput) return;
 
-        {totalHits > 0 && (
-          <ImageGallery items={items} onToggle={this.toggleModal} />
-        )}
+    setIsLoader(true);
+    setTotal(null);
 
-        {isLoader && <Loader />}
+    getNewItems(searchInput, page).then(({ hits, totalHits, total }) => {
+      setItems(p => [...p, ...normalizeApi(hits)]);
+      setTotalHits(totalHits);
+      setIsLoader(false);
+      setTotal(total);
+    });
+  }, [page, searchInput]);
 
-        {total === 0 && <ErrorMessage>Sorry, not found</ErrorMessage>}
+  return (
+    <Box pb={4}>
+      <Searchbar onSubmit={handleSubmit} />
 
-        {loadMoreBtnTrue && <Button onClick={this.updatePage} />}
+      {totalHits > 0 && <ImageGallery items={items} />}
 
-        <GlobalStyle />
-        <ToastContainer autoClose={1500} />
-      </Box>
-    );
-  }
-}
+      {isLoader && <Loader />}
+
+      {total === 0 && <ErrorMessage>Sorry, not found</ErrorMessage>}
+
+      {loadMoreBtnTrue && <Button onClick={updatePage} />}
+
+      <GlobalStyle />
+      <ToastContainer autoClose={1500} />
+    </Box>
+  );
+};
