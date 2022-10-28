@@ -23,18 +23,6 @@ export const App = () => {
   const [isLoader, setIsLoader] = useState(false);
   const [total, setTotal] = useState(null);
 
-  const handleSubmit = searchInput => {
-    setSearchInput(searchInput);
-    setItems([]);
-    setPage(1);
-  };
-
-  const updatePage = () => {
-    setPage(p => p + 1);
-  };
-
-  const loadMoreBtnTrue = items.length > 0 && items.length < totalHits;
-
   useEffect(() => {
     if (!searchInput) return;
 
@@ -49,17 +37,29 @@ export const App = () => {
     });
   }, [page, searchInput]);
 
+  const handleSubmit = searchInput => {
+    setSearchInput(searchInput);
+    setItems([]);
+    setPage(1);
+  };
+
+  const updatePage = () => {
+    setPage(p => p + 1);
+  };
+
+  const loadMoreBtnTrue = items.length > 0 && items.length < totalHits;
+
   return (
     <Box pb={4}>
       <Searchbar onSubmit={handleSubmit} />
 
       {totalHits > 0 && <ImageGallery items={items} />}
 
-      {isLoader && <Loader />}
-
       {total === 0 && <ErrorMessage>Sorry, not found</ErrorMessage>}
 
-      {loadMoreBtnTrue && <Button onClick={updatePage} />}
+      {loadMoreBtnTrue && !isLoader ? <Button onClick={updatePage} /> : null}
+
+      {isLoader && <Loader />}
 
       <GlobalStyle />
       <ToastContainer autoClose={1500} />
